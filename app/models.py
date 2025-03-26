@@ -1,4 +1,5 @@
 import os
+import logging
 from sentence_transformers import SentenceTransformer
 
 def download_and_cache_models():
@@ -12,13 +13,13 @@ def download_and_cache_models():
 
     for model_name in models:
         try:
-            print(f"Downloading model: {model_name}")
+            logging.info(f"Downloading model: {model_name}")
             model_path = os.path.join(download_dir, model_name)
             model = SentenceTransformer(model_name)
             model.save(model_path)
-            print(f"Model {model_name} downloaded  and saved successfully")
+            logging.info(f"Model {model_name} downloaded  and saved successfully")
         except Exception as e:
-            print(f"Error : {e}")
+            logging.error(f"Error : {e}")
 
 if __name__ == "__main__":
     download_and_cache_models()
