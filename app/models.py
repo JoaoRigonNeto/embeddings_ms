@@ -3,10 +3,23 @@ import logging
 from sentence_transformers import SentenceTransformer
 
 def download_and_cache_models():
+
     models = [
         "all-MiniLM-L6-v2",
-        "all-mpnet-base-v2"
+        "paraphrase-multilingual-MiniLM-L12-v2",
+        "distiluse-base-multilingual-cased-v2",
+        "xlm-r-distilroberta-base-paraphrase-v1",
+        "paraphrase-xlm-r-multilingual-v1",
+        "all-distilroberta-v1",
+        "all-MiniLM-L12-v2",
+        "all-mpnet-base-v2",
+        "msmarco-distilbert-base-tas-b",
     ]
+
+    # non_sentance_transformers_models = [
+    #     "neuralmind/bert-base-portuguese-cased",
+    #     "pierreguillou/gpt2-small-portuguese",
+    # ]
 
     download_dir = "/model-download/models"
     os.makedirs(download_dir, exist_ok=True)
