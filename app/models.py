@@ -16,11 +16,6 @@ def download_and_cache_models():
         "msmarco-distilbert-base-tas-b",
     ]
 
-    # non_sentance_transformers_models = [
-    #     "neuralmind/bert-base-portuguese-cased",
-    #     "pierreguillou/gpt2-small-portuguese",
-    # ]
-
     download_dir = "/model-download/models"
     os.makedirs(download_dir, exist_ok=True)
 

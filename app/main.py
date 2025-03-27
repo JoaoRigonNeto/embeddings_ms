@@ -1,13 +1,21 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Union
 from .embedding_service import EmbeddingService
+from .model_manager import load_model
+import os
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_model()
+    yield
 app = FastAPI(
     title="Embedding Microservice",
     description="Generate text embeddings using sentence transformers",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
 embedding_service = EmbeddingService()
@@ -36,15 +44,17 @@ class EmbeddingResponse(BaseModel):
     usage: Usage
     object: str
 
-
 @app.post("/v1/embeddings")
 async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
     tokens = 0
     embeddings_response = []
     if isinstance(request.input, str):
-            request.input = [request.input]
+        request.input = [request.input]
     try:
-        raw_embeddings = embedding_service.generate_embeddings(request.input, request.model)
+        if request.model != os.environ.get("MODEL_NAME"):
+            raise RuntimeError("Model specified is not available.")
+        raw_embeddings = embedding_service.generate_embeddings(request.input)
+
         for index, single_raw_embedding in enumerate(raw_embeddings):
             tokens += len(request.input[index])
             embeddings_response.append(
