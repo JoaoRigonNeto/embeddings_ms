@@ -2,7 +2,7 @@ import os
 from sentence_transformers import SentenceTransformer
 import numpy as np
 from typing import List
-from .model_manager import get_model
+from model_manager import get_model
 
 class EmbeddingService:
     def __init__(self):

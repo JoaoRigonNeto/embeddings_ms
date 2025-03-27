@@ -3,14 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Union
-from .embedding_service import EmbeddingService
-from .model_manager import load_model
+from embedding_service import EmbeddingService
+from model_manager import load_model
 import os
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_model()
     yield
+
 app = FastAPI(
     title="Embedding Microservice",
     description="Generate text embeddings using sentence transformers",
@@ -51,8 +52,7 @@ async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
     if isinstance(request.input, str):
         request.input = [request.input]
     try:
-        if request.model != os.environ.get("MODEL_NAME"):
-            raise RuntimeError("Model specified is not available.")
+        #TODO Create check for available models
         raw_embeddings = embedding_service.generate_embeddings(request.input)
 
         for index, single_raw_embedding in enumerate(raw_embeddings):
@@ -74,3 +74,5 @@ async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+#TODO Create info endpoint for model informatio (model name, model link on hugging face, dense vector result size)
