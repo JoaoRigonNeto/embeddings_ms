@@ -14,11 +14,13 @@ RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
-ARG MODEL_NAME
+ARG MODEL_NAME="all"
 
 RUN python model_manager.py --model-name $MODEL_NAME
 
 FROM python:3.10-slim
+
+WORKDIR /app
 
 ADD requirements.txt requirements.txt
 RUN pip config set global.trusted-host \
@@ -30,10 +32,8 @@ RUN pip config set global.trusted-host \
 
 RUN pip install -r requirements.txt
 
-COPY ./app /app
+COPY ./app .
 COPY --from=model-downloader /model-download/models /app/models
-
-WORKDIR /app
 
 ENV HF_HOME=/app/models \
     SENTENCE_TRANSFORMERS_HOME=/app/models

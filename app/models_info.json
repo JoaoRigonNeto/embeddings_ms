@@ -1,0 +1,47 @@
+{
+  "all-MiniLM-L12-v2":  {
+    "name": "all-MiniLM-L12-v2",
+    "link": "https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2",
+    "dimensions": 384
+  },
+  "all-mpnet-base-v2":  {
+    "name": "all-mpnet-base-v2",
+    "link": "https://huggingface.co/sentence-transformers/all-mpnet-base-v2",
+    "dimensions": 768
+  },
+  "paraphrase-multilingual-MiniLM-L12-v2":  {
+    "name": "paraphrase-multilingual-MiniLM-L12-v2",
+    "link": "https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+    "dimensions": 384
+  },
+  "distiluse-base-multilingual-cased-v2":  {
+    "name": "distiluse-base-multilingual-cased-v2",
+    "link": "https://huggingface.co/sentence-transformers/distiluse-base-multilingual-cased-v2",
+    "dimensions": 512
+  },
+  "all-MiniLM-L6-v2":  {
+    "name": "all-MiniLM-L6-v2",
+    "link": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2",
+    "dimensions": 384
+  },
+  "paraphrase-xlm-r-multilingual-v1":  {
+    "name": "paraphrase-xlm-r-multilingual-v1",
+    "link": "https://huggingface.co/sentence-transformers/paraphrase-xlm-r-multilingual-v1",
+    "dimensions": 768
+  },
+  "all-distilroberta-v1":  {
+    "name": "all-distilroberta-v1",
+    "link": "https://huggingface.co/sentence-transformers/all-distilroberta-v1",
+    "dimensions": 768
+  },
+  "msmarco-distilbert-base-tas-b":  {
+    "name": "msmarco-distilbert-base-tas-b",
+    "link": "https://huggingface.co/sentence-transformers/msmarco-distilbert-base-tas-b",
+    "dimensions": 768
+  },
+  "xlm-r-distilroberta-base-paraphrase-v1":  {
+    "name": "xlm-r-distilroberta-base-paraphrase-v1",
+    "link": "https://huggingface.co/sentence-transformers/xlm-r-distilroberta-base-paraphrase-v1",
+    "dimensions": 768
+  }
+}

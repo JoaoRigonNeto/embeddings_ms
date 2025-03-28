@@ -4,12 +4,12 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Union
 from embedding_service import EmbeddingService
-from model_manager import load_model
-import os
+from model_manager import load_models, load_info, get_info
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    load_model()
+    load_models()
+    load_info()
     yield
 
 app = FastAPI(
@@ -45,6 +45,12 @@ class EmbeddingResponse(BaseModel):
     usage: Usage
     object: str
 
+class InformationRequest(BaseModel):
+    model_name: str
+
+class InformationResponse(BaseModel):
+    info: dict[str, str]
+
 @app.post("/v1/embeddings")
 async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
     tokens = 0
@@ -53,7 +59,7 @@ async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
         request.input = [request.input]
     try:
         #TODO Create check for available models
-        raw_embeddings = embedding_service.generate_embeddings(request.input)
+        raw_embeddings = embedding_service.generate_embeddings(request.input, request.model)
 
         for index, single_raw_embedding in enumerate(raw_embeddings):
             tokens += len(request.input[index])
@@ -68,11 +74,24 @@ async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
         )
         
     except Exception as e:
+        logging.error(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    try:
+        return {"status": "healthy"}
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/info")
+async def info(request: InformationRequest) -> InformationResponse:
+    try:
+        return InformationResponse(get_info(model_name=request.model_name))
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 #TODO Create info endpoint for model informatio (model name, model link on hugging face, dense vector result size)
