@@ -97,4 +97,7 @@ async def info(model:str) -> InformationResponse:
         logging.error(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-#TODO Create info endpoint for model informatio (model name, model link on hugging face, dense vector result size)
+@app.get("/available_models")
+async def list_models():
+    from model_manager import get_available_models
+    return {"models": get_available_models()}

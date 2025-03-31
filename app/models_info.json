@@ -43,5 +43,10 @@
     "name": "xlm-r-distilroberta-base-paraphrase-v1",
     "link": "https://huggingface.co/sentence-transformers/xlm-r-distilroberta-base-paraphrase-v1",
     "dimensions": 768
+  },
+    "gte-multilingual-base":  {
+    "name": "Alibaba-NLP/gte-multilingual-base",
+    "link": "https://huggingface.co/Alibaba-NLP/gte-multilingual-base",
+    "dimensions": 768
   }
 }

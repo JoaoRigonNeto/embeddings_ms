@@ -1,6 +1,9 @@
 FROM python:3.10-slim AS model-downloader
 
 WORKDIR /model-download
+
+ENV HF_HOME=/tmp/empty 
+
 COPY app/model_manager.py .
 COPY requirements.txt .
 
@@ -14,6 +17,7 @@ RUN pip install --upgrade pip
 
 RUN pip install -r requirements.txt
 
+
 ARG MODEL_NAME="all"
 
 RUN python model_manager.py --model-name $MODEL_NAME
@@ -21,6 +25,9 @@ RUN python model_manager.py --model-name $MODEL_NAME
 FROM python:3.10-slim
 
 WORKDIR /app
+
+ENV HF_HOME=/tmp/empty \
+    PYTHONPATH=/app
 
 ADD requirements.txt requirements.txt
 RUN pip config set global.trusted-host \
@@ -39,9 +46,7 @@ COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 
-ENV HF_HOME=/app/models \
-    SENTENCE_TRANSFORMERS_HOME=/app/models \
-    PYTHONPATH=/app
+
 
 EXPOSE 8000
 

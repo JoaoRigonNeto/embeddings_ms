@@ -42,7 +42,7 @@ def load_models() -> None:
     models_dir = "/app/models"
     for local_model in os.listdir(models_dir):
         if local_model not in models:
-            models[local_model] = SentenceTransformer(os.path.join(models_dir, local_model))
+            models[local_model] = SentenceTransformer(os.path.join(models_dir, local_model), trust_remote_code=True)
             logging.info(f"Model '{local_model}' loaded into memory")
         else:
             logging.info(f"Model '{local_model}' already loaded into memory")
@@ -57,7 +57,7 @@ def get_model(model_name: str) -> SentenceTransformer:
 
 def get_available_models() -> list[str]:
     global models
-    return [*models]
+    return list(models.keys())
 
 
 def _download_and_cache_model(models_dir: str, model_name: str ="all"):
@@ -73,6 +73,7 @@ def _download_and_cache_model(models_dir: str, model_name: str ="all"):
             "all-MiniLM-L12-v2",
             "all-mpnet-base-v2",
             "msmarco-distilbert-base-tas-b",
+            "Alibaba-NLP/gte-multilingual-base"
         ]
     else:
         model_name = [model_name]
@@ -81,8 +82,8 @@ def _download_and_cache_model(models_dir: str, model_name: str ="all"):
     try:
         for model in model_name:
             logging.info(f"Downloading model: {model}")
-            model_path = os.path.join(models_dir, model)
-            local_model = SentenceTransformer(model)
+            model_path = os.path.join(models_dir, model.split("/")[-1])
+            local_model = SentenceTransformer(model, trust_remote_code=True)
             local_model.save(model_path)
             logging.info(f"Model {model} downloaded  and saved successfully")
     except Exception as e:
