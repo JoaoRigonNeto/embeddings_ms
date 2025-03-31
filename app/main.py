@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, Any
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -6,10 +7,15 @@ from typing import List, Union
 from embedding_service import EmbeddingService
 from model_manager import load_models, load_info, get_info
 
+logging.basicConfig(level=logging.INFO)
+embedding_service = EmbeddingService()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_models()
+    logging.info("All models loaded")
     load_info()
+    logging.info("All models infos loaded")
     yield
 
 app = FastAPI(
@@ -19,8 +25,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-embedding_service = EmbeddingService()
-logging.basicConfig(level=logging.INFO)
 
 class EmbeddingRequest(BaseModel):
     input: Union[str, List[str]] = Field(
@@ -46,10 +50,10 @@ class EmbeddingResponse(BaseModel):
     object: str
 
 class InformationRequest(BaseModel):
-    model_name: str
+    model: str
 
 class InformationResponse(BaseModel):
-    info: dict[str, str]
+    info: Dict[str, Any]
 
 @app.post("/v1/embeddings")
 async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
@@ -58,7 +62,6 @@ async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
     if isinstance(request.input, str):
         request.input = [request.input]
     try:
-        #TODO Create check for available models
         raw_embeddings = embedding_service.generate_embeddings(request.input, request.model)
 
         for index, single_raw_embedding in enumerate(raw_embeddings):
@@ -86,10 +89,10 @@ async def health_check():
         logging.error(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/info")
-async def info(request: InformationRequest) -> InformationResponse:
+@app.get("/info/{model}")
+async def info(model:str) -> InformationResponse:
     try:
-        return InformationResponse(get_info(model_name=request.model_name))
+        return InformationResponse(info=get_info(model_name=model))
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500, detail=str(e))

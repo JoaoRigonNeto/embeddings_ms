@@ -22,7 +22,7 @@ info = {}
 
 def load_info() -> None:
     global info
-    with open('info.json') as json_data:
+    with open('models_info.json') as json_data:
         local_info = json.load(json_data)
         models_dir = "/app/models"
         for model_name in os.listdir(models_dir):
@@ -33,7 +33,7 @@ def load_info() -> None:
 def get_info(model_name: str) -> dict[str, str]:
     global info
     if model_name not in info:
-        raise RuntimeError(f"Model '{model_name}' info not loaded.")
+        raise RuntimeError(f"Model '{model_name}' information not loaded.")
     return info[model_name]
 
 
@@ -43,13 +43,22 @@ def load_models() -> None:
     for local_model in os.listdir(models_dir):
         if local_model not in models:
             models[local_model] = SentenceTransformer(os.path.join(models_dir, local_model))
+            logging.info(f"Model '{local_model}' loaded into memory")
+        else:
+            logging.info(f"Model '{local_model}' already loaded into memory")
 
 
 def get_model(model_name: str) -> SentenceTransformer:
     global models
     if model_name not in models:
-        raise RuntimeError(f"Model '{model_name}' not loaded.")
+        raise RuntimeError(f"Model '{model_name}' not available.")
     return models[model_name]
+
+
+def get_available_models() -> list[str]:
+    global models
+    return [*models]
+
 
 def _download_and_cache_model(models_dir: str, model_name: str ="all"):
 

@@ -24,20 +24,25 @@ WORKDIR /app
 
 ADD requirements.txt requirements.txt
 RUN pip config set global.trusted-host \
-    "pypi.org files.pythonhosted.org pypi.python.org huggingface.co" \
+    "pypi.org files.pythonhosted.org pypi.python.org" \
     --trusted-host=pypi.python.org \
     --trusted-host=pypi.org \
-    --trusted-host=files.pythonhosted.org \
-    --trusted-host=huggingface.co
+    --trusted-host=files.pythonhosted.org 
 
 RUN pip install -r requirements.txt
 
 COPY ./app .
 COPY --from=model-downloader /model-download/models /app/models
+COPY test /app/test
+
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 
 ENV HF_HOME=/app/models \
-    SENTENCE_TRANSFORMERS_HOME=/app/models
+    SENTENCE_TRANSFORMERS_HOME=/app/models \
+    PYTHONPATH=/app
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["./start.sh"]
