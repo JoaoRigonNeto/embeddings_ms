@@ -1,11 +1,9 @@
 import logging
-from typing import Dict, Any
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-from typing import List, Union
 from embedding_service import EmbeddingService
 from model_manager import load_models, load_info, get_info
+from schemas import *
 
 logging.basicConfig(level=logging.INFO)
 embedding_service = EmbeddingService()
@@ -26,36 +24,12 @@ app = FastAPI(
 )
 
 
-class EmbeddingRequest(BaseModel):
-    input: Union[str, List[str]] = Field(
-        examples=["This is a example string"]
+@app.post(
+        "/v1/embeddings",
+        summary="Generate text embeddings",
+        description="Accepts raw text and returns corresponding vector embeddings.",
+        tags=["Embeddings"]
     )
-    model: str = Field(
-        examples=["all-MiniLM-L6-v2"]
-    ) 
-
-class EmbeddingData(BaseModel):
-    embedding: List[float]
-    index: int
-    object: str
-
-class Usage(BaseModel):
-    prompt_tokens: int
-    total_tokens: int
-
-class EmbeddingResponse(BaseModel):
-    data: List[EmbeddingData]
-    model: str
-    usage: Usage
-    object: str
-
-class InformationRequest(BaseModel):
-    model: str
-
-class InformationResponse(BaseModel):
-    info: Dict[str, Any]
-
-@app.post("/v1/embeddings")
 async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
     tokens = 0
     embeddings_response = []
@@ -81,7 +55,12 @@ async def create_embeddings(request: EmbeddingRequest) -> EmbeddingResponse:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/health")
+@app.get(
+        "/health",
+        summary="Health check",
+        description="Returns status healthy if server is running",
+        tags=["Health"]
+    )
 async def health_check():
     try:
         return {"status": "healthy"}
@@ -89,7 +68,13 @@ async def health_check():
         logging.error(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/info/{model}")
+
+@app.get(
+        "/info/{model}",
+        summary="Get information of models",
+        description="Return information on specific models loaded",
+        tags=["Information"]
+    )
 async def info(model:str) -> InformationResponse:
     try:
         return InformationResponse(info=get_info(model_name=model))
@@ -97,7 +82,13 @@ async def info(model:str) -> InformationResponse:
         logging.error(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/available_models")
+
+@app.get(
+        "/available_models",
+        summary="Available models",
+        description="Returns available models to be used for embeddings",
+        tags=["Information"]
+    )
 async def list_models():
     from model_manager import get_available_models
     return {"models": get_available_models()}
