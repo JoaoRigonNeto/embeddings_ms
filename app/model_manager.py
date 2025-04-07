@@ -7,6 +7,8 @@ from sentence_transformers import SentenceTransformer
 from huggingface_hub import configure_http_backend
 import urllib3
 
+
+
 def backend_factory() -> requests.Session:
     session = requests.Session()
     session.verify = False
@@ -40,7 +42,16 @@ def get_info(model_name: str) -> dict[str, str]:
 def load_models() -> None:
     global models
     models_dir = "/app/models"
-    for local_model in os.listdir(models_dir):
+    try:
+        local_models = os.listdir(models_dir)
+    except FileNotFoundError:
+        local_models = []
+
+    if not local_models:
+        _download_and_cache_model(models_dir="/app/models", model_name=os.environ.get("MODEL_NAME", "none")) 
+        local_models = os.listdir(models_dir)
+
+    for local_model in local_models:
         if local_model not in models:
             models[local_model] = SentenceTransformer(os.path.join(models_dir, local_model), trust_remote_code=True)
             logging.info(f"Model '{local_model}' loaded into memory")
@@ -60,7 +71,7 @@ def get_available_models() -> list[str]:
     return list(models.keys())
 
 
-def _download_and_cache_model(models_dir: str, model_name: str ="all"):
+def _download_and_cache_model(models_dir: str, model_name: str):
 
     if model_name == "all":
         model_name = [
@@ -75,22 +86,26 @@ def _download_and_cache_model(models_dir: str, model_name: str ="all"):
             "msmarco-distilbert-base-tas-b",
             "Alibaba-NLP/gte-multilingual-base"
         ]
+    elif not model_name or model_name == "none":
+        logging.info("Skipping model download...")
+        return
     else:
         model_name = [model_name]
 
     os.makedirs(models_dir, exist_ok=True)
-    try:
-        for model in model_name:
+    for model in model_name:
+        try:
             logging.info(f"Downloading model: {model}")
             model_path = os.path.join(models_dir, model.split("/")[-1])
             local_model = SentenceTransformer(model, trust_remote_code=True)
             local_model.save(model_path)
             logging.info(f"Model {model} downloaded  and saved successfully")
-    except Exception as e:
-        logging.error(f"Error : {e}")
+        except Exception as e:
+            logging.error(f"Failed to download model {model}: {e}")
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser("model_manager")
     parser.add_argument("--model-name", type=str)
     args = parser.parse_args()

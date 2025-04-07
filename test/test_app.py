@@ -10,8 +10,8 @@ def test_health_check():
     assert response.json() == {"status": "healthy"}
 
 def test_available_models_check():
-    os_available_models = os.listdir("/app/models")
     with TestClient(app) as client:
+        os_available_models = os.listdir("/app/models")
         response = client.get("/available_models")
         assert response.status_code == 200
         assert response.json().get("models") == os_available_models

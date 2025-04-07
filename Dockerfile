@@ -15,15 +15,22 @@ RUN pip config set global.trusted-host \
 RUN pip install --no-cache-dir -r requirements.txt && \
     rm -rf /root/.cache /tmp/*
 
-ARG MODEL_NAME="all"
-RUN python model_manager.py --model-name $MODEL_NAME
+RUN mkdir -p /model-download/models
+
+ARG MODEL_NAME="none"
+RUN if [ "$MODEL_NAME" != "none" ]; then \
+      python model_manager.py --model-name $MODEL_NAME; \
+    else \
+      echo "Skipping model download during build"; \
+    fi
 
 
 FROM python:3.10-slim
 
 WORKDIR /app
 ENV HF_HOME=/tmp/empty \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    MODEL_NAME=paraphrase-xlm-r-multilingual-v1
 
 COPY --from=model-downloader /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 COPY --from=model-downloader /usr/local/bin /usr/local/bin
